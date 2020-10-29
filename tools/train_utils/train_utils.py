@@ -32,14 +32,15 @@ def train_one_epoch(model, optimizer, train_loader, model_func, lr_scheduler, ac
         if tb_log is not None:
             tb_log.add_scalar('meta_data/learning_rate', cur_lr, accumulated_iter)
 
-        model.train()
-        optimizer.zero_grad()
+        #找到表示训练和梯度优化等的关键函数
+        model.train() #一个固定语句
+        optimizer.zero_grad() #梯度清零
 
-        loss, tb_dict, disp_dict = model_func(model, batch)
+        loss, tb_dict, disp_dict = model_func(model, batch) #求loss
 
-        loss.backward()
-        clip_grad_norm_(model.parameters(), optim_cfg.GRAD_NORM_CLIP)
-        optimizer.step()
+        loss.backward() #反向传播
+        clip_grad_norm_(model.parameters(), optim_cfg.GRAD_NORM_CLIP) #梯度裁剪
+        optimizer.step() #更新
 
         accumulated_iter += 1
         disp_dict.update({'loss': loss.item(), 'lr': cur_lr})

@@ -1,8 +1,9 @@
+## 类别名
 CLASS_NAMES: ['Car', 'Pedestrian', 'Cyclist']
 
-DATA_CONFIG:
-    _BASE_CONFIG_: cfgs/dataset_configs/kitti_dataset.yaml
-    DATA_AUGMENTOR:
+DATA_CONFIG: #数据配置
+    _BASE_CONFIG_: cfgs/dataset_configs/kitti_dataset.yaml #基本配置
+    DATA_AUGMENTOR: #数据增强
         DISABLE_AUG_LIST: ['placeholder']
         AUG_CONFIG_LIST:
             - NAME: gt_sampling
@@ -32,44 +33,44 @@ DATA_CONFIG:
 MODEL:
     NAME: PVRCNN
 
-    VFE:
+    VFE: ##体素特征编码
         NAME: MeanVFE
 
-    BACKBONE_3D:
+    BACKBONE_3D: #3D 基础网络
         NAME: VoxelBackBone8x
 
-    MAP_TO_BEV:
+    MAP_TO_BEV: #映射到BEV
         NAME: HeightCompression
-        NUM_BEV_FEATURES: 256
+        NUM_BEV_FEATURES: 256 #BEV特征个数
 
     BACKBONE_2D:
         NAME: BaseBEVBackbone
 
-        LAYER_NUMS: [5, 5]
-        LAYER_STRIDES: [1, 2]
-        NUM_FILTERS: [128, 256]
-        UPSAMPLE_STRIDES: [1, 2]
-        NUM_UPSAMPLE_FILTERS: [256, 256]
+        LAYER_NUMS: [5, 5] #层数
+        LAYER_STRIDES: [1, 2] #层歩长strides
+        NUM_FILTERS: [128, 256] #滤波器数量
+        UPSAMPLE_STRIDES: [1, 2] #下采样歩长
+        NUM_UPSAMPLE_FILTERS: [256, 256] #上采样滤波器数量
 
     DENSE_HEAD:
         NAME: AnchorHeadSingle
         CLASS_AGNOSTIC: False
 
-        USE_DIRECTION_CLASSIFIER: True
-        DIR_OFFSET: 0.78539
-        DIR_LIMIT_OFFSET: 0.0
-        NUM_DIR_BINS: 2
+        USE_DIRECTION_CLASSIFIER: True #使用方向分类器
+        DIR_OFFSET: 0.78539 #方向偏移量
+        DIR_LIMIT_OFFSET: 0.0 #方向限制偏移量
+        NUM_DIR_BINS: 2 #bin数量
 
-        ANCHOR_GENERATOR_CONFIG: [
+        ANCHOR_GENERATOR_CONFIG: [ # 锚生成器配置
             {
                 'class_name': 'Car',
-                'anchor_sizes': [[3.9, 1.6, 1.56]],
-                'anchor_rotations': [0, 1.57],
-                'anchor_bottom_heights': [-1.78],
-                'align_center': False,
-                'feature_map_stride': 8,
-                'matched_threshold': 0.6,
-                'unmatched_threshold': 0.45
+                'anchor_sizes': [[3.9, 1.6, 1.56]], #锚的尺寸
+                'anchor_rotations': [0, 1.57], #锚的旋转
+                'anchor_bottom_heights': [-1.78], #锚底高度
+                'align_center': False, #居中对齐
+                'feature_map_stride': 8, #特征图歩长
+                'matched_threshold': 0.6, #匹配阈值
+                'unmatched_threshold': 0.45 #匹配失败的阈值
             },
             {
                 'class_name': 'Pedestrian',
@@ -93,20 +94,20 @@ MODEL:
             }
         ]
 
-        TARGET_ASSIGNER_CONFIG:
+        TARGET_ASSIGNER_CONFIG: #目标分配器配置
             NAME: AxisAlignedTargetAssigner
-            POS_FRACTION: -1.0
-            SAMPLE_SIZE: 512
-            NORM_BY_NUM_EXAMPLES: False
-            MATCH_HEIGHT: False
-            BOX_CODER: ResidualCoder
+            POS_FRACTION: -1.0 #位置分数
+            SAMPLE_SIZE: 512 #采样大小
+            NORM_BY_NUM_EXAMPLES: False #使用num个例子归一化
+            MATCH_HEIGHT: False #匹配高度
+            BOX_CODER: ResidualCoder #边框编码器
 
-        LOSS_CONFIG:
+        LOSS_CONFIG: #损失配置
             LOSS_WEIGHTS: {
                 'cls_weight': 1.0,
                 'loc_weight': 2.0,
                 'dir_weight': 0.2,
-                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] #编码权重
             }
 
     PFE:

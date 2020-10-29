@@ -52,38 +52,52 @@ class DemoDataset(DatasetTemplate):
         data_dict = self.prepare_data(data_dict=input_dict)
         return data_dict
 
-
-def parse_config():
+#创建一个ArgumentParser对象，格式: 参数名,类型,默认值, 帮助信息
+def parse_config(): 
     parser = argparse.ArgumentParser(description='arg parser')
+    #设置模型参数
     parser.add_argument('--cfg_file', type=str, default='cfgs/kitti_models/second.yaml',
                         help='specify the config for demo')
+    #设置数据路径参数
     parser.add_argument('--data_path', type=str, default='demo_data',
                         help='specify the point cloud data file or directory')
+    #设置预训练模型，Check point 校验点 在系统运行中当出现查找数据请求时，
+    #系统从数据库中找出这些数据并存入内存区，这样用户就可以对这些内存区数据进行修改等
     parser.add_argument('--ckpt', type=str, default=None, help='specify the pretrained model')
+    # extension 指定点云数据文件的扩展名
     parser.add_argument('--ext', type=str, default='.bin', help='specify the extension of your point cloud data file')
 
     args = parser.parse_args()
 
     cfg_from_yaml_file(args.cfg_file, cfg)
-
+    #arguments参数，configuration配制
     return args, cfg
 
 
 def main():
     args, cfg = parse_config()
-    logger = common_utils.create_logger()
+    logger = common_utils.create_logger() #logger记录日志
     logger.info('-----------------Quick Demo of OpenPCDet-------------------------')
+    #建立一个DemoDataset类，其中储存关于输入数据的所有信息，包含六个参数
+    # dataset_cfg=cfg.DATA_CONFIG # 数据参数
+    # 包含数据集 / 数据路径 / 信息路径 / 数据处理器 / 数据增强器等
+    # class_names=cfg.CLASS_NAMES # 类别名
+    # training=False # 是否训练
+    # root_path=Path(args.data_path) # 数据路径
+    # ext=args.ext # 扩展
+    # logger=logger # 日志
     demo_dataset = DemoDataset(
         dataset_cfg=cfg.DATA_CONFIG, class_names=cfg.CLASS_NAMES, training=False,
         root_path=Path(args.data_path), ext=args.ext, logger=logger
-    )
+    ) 
+
     logger.info(f'Total number of samples: \t{len(demo_dataset)}')
 
     model = build_network(model_cfg=cfg.MODEL, num_class=len(cfg.CLASS_NAMES), dataset=demo_dataset)
     model.load_params_from_file(filename=args.ckpt, logger=logger, to_cpu=True)
     model.cuda()
     model.eval()
-    with torch.no_grad():
+    with torch.no_grad(): #目的是使得其中的数据不需要计算梯度，也不会进行反向传播
         for idx, data_dict in enumerate(demo_dataset):
             logger.info(f'Visualized sample index: \t{idx + 1}')
             data_dict = demo_dataset.collate_batch([data_dict])

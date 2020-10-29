@@ -1,6 +1,6 @@
 DATASET: 'KittiDataset'
 DATA_PATH: '../data/kitti'
-
+#点云范围，根据实际自己的点云范围调整,顺序为[x_min, y_min, z_min, x_max, y_max, z_max]
 POINT_CLOUD_RANGE: [0, -40, -3, 70.4, 40, 1]
 
 DATA_SPLIT: {
@@ -60,11 +60,11 @@ DATA_PROCESSOR:
         'train': True,
         'test': False
       }
-
+      #体素参数，根据点云的稠密程度调整
     - NAME: transform_points_to_voxels
-      VOXEL_SIZE: [0.05, 0.05, 0.1]
-      MAX_POINTS_PER_VOXEL: 5
-      MAX_NUMBER_OF_VOXELS: {
+      VOXEL_SIZE: [0.05, 0.05, 0.1] #体素大小
+      MAX_POINTS_PER_VOXEL: 5 #每个体素的最大点数
+      MAX_NUMBER_OF_VOXELS: { #体素数量上限
         'train': 16000,
         'test': 40000
       }
